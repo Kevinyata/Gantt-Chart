@@ -4,9 +4,6 @@
 
 #define MAX_TASKS 10
 
-void generate_gantt();
-
-enum month {january,february,march,april,may,june,july,august,september,october,november,december};
 struct Task {
     char name[10];
     int start_month;
@@ -15,6 +12,10 @@ struct Task {
     int dependencies[];
 };
 
+void generate_gantt();
+void print_gantt(struct Task taskList[], int num_tasks);
+
+enum month {january,february,march,april,may,june,july,august,september,october,november,december};
 
 int main()
 {
@@ -30,14 +31,14 @@ int main()
 
     //Checks to see if their answer is a selectable option
     //If their answer is not a selectable option the program will request another choice attempt until it works.
-    while((strcmp(ganttChoice, "yes") != 0) && (strcmp(ganttChoice, "no") != 0))
+    while((strcasecmp(ganttChoice, "yes") != 0) && (strcasecmp(ganttChoice, "no") != 0))
     {
         printf("What you have entered is not a selectable choice. Please choose yes or no\n");
         scanf("%s", ganttChoice);
     }
 
     //The switch function checks to see if the user's choice was yes or no.
-    switch (strcmp(ganttChoice, "yes"))
+    switch (strcasecmp(ganttChoice, "yes"))
     {
         case 0:
             //If yes the function for creating the test example is used.
@@ -53,18 +54,18 @@ int main()
 
     //Part 2:
     printf("If you wish to edit the Gantt please type ''edit'' / If you wish to run a test, type ''test'' or to exit, type ''quit'' and then press enter to execute your option\n");
-    while((strcmp(useOfProgram, "edit") != 0) && (strcmp(useOfProgram, "test") != 0) && (strcmp(useOfProgram, "quit") != 0))
+    while((strcasecmp(useOfProgram, "edit") != 0) && (strcasecmp(useOfProgram, "test") != 0) && (strcasecmp(useOfProgram, "quit") != 0))
     {
         printf("What you have entered is not a selectable choice. Please choose edit, test, or quit\n");
         scanf("%s", useOfProgram);
     }
-    if(strcmp(useOfProgram, "quit") == 0)
+    if(strcasecmp(useOfProgram, "quit") == 0)
     {
         printf("You have selected quit\n");
         printf("Thank you for using the Gantt generator\n");
-        exit(0);
+        return 0;
     }
-    switch (strcmp(useOfProgram, "edit"))
+    switch (strcasecmp(useOfProgram, "edit"))
     {
         case 0:
             //If "exit" the function for editing the gantt is used.
@@ -77,7 +78,6 @@ int main()
             //The program then exits the switch function.
             break;
     }
-
 
 return 0;
 
@@ -131,16 +131,26 @@ void generate_gantt()
         }
     }
 
+    print_gantt(taskList, num_tasks);
+}
+
+void print_gantt(struct Task taskList[], int num_tasks)
+{
     // Print Gantt chart
     printf("\n");
-    for (int i = 0; i < 120; i++) {
+    for (int i = 0; i < 120; i++)
+    {
         printf("_");
     }
     printf("\n");
-    printf("\t\t| Jan\t| Feb\t| Mar\t| Apr\t| May\t| Jun\t| Jul\t| Aug\t| Sep\t| Oct\t| Nov\t| Dec\t| Dependencies\n");
+    printf("\t| Jan\t| Feb\t| Mar\t| Apr\t| May\t| Jun\t| Jul\t| Aug\t| Sep\t| Oct\t| Nov\t| Dec\t| Dependencies\n");
     for (int i = 0; i < num_tasks; i++)
     {
-        printf("%s\t\t", taskList[i].name);
+        for(int j = 0; j < 120; j++)
+        {
+            printf("-");
+        }
+        printf("%s\t", taskList[i].name);
         for(int j = 1; j <= 12; j++)
         {
             if(j <= taskList[i].end_month && j >= taskList[i].start_month)
@@ -159,4 +169,31 @@ void generate_gantt()
         }
         printf("\n");
     }
+    for(int j = 0; j < 120; j++)
+    {
+        printf("-");
+    }
 }
+
+/*void printDependentTasks(structs task taskList[], int taskId, int visitedTable[])
+{
+    printf("%d - > "taskId+1);
+    visitedTasks[taskId] = 1;
+
+    for (int i = 0; i < taskList[taskId].num_dependent_tasks; i++)
+    {
+        int dependentTaskId = taskList[taskId].dependent_tasks[i];
+
+        if(visitedTasks[dependentTaskId] == 0)
+        {
+            printDependentTasks(taskList, dependentTaskId, visitedTasks);
+        }
+
+        else
+        {
+            printf("( !!!!!!!!! warning potential circular dependency !!!!!!!!!!!!!)\n")7
+            checkIfCircular(taskList, dependentTaskId, resetVisitedTasks, dependentTaskId);
+        }
+    }
+}
+*/
