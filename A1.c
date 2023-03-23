@@ -171,19 +171,28 @@ void print_gantt(struct Task taskList[], int num_tasks)
 {
     // Print Gantt chart
     printf("\n");
-    for (int i = 0; i < 120; i++)
+    for (int i = 0; i < 130; i++)
     {
         printf("_");
     }
     printf("\n");
-    printf("\t| Jan\t| Feb\t| Mar\t| Apr\t| May\t| Jun\t| Jul\t| Aug\t| Sep\t| Oct\t| Nov\t| Dec\t| Dependencies\n");
+    printf("\t\t| Jan\t| Feb\t| Mar\t| Apr\t| May\t| Jun\t| Jul\t| Aug\t| Sep\t| Oct\t| Nov\t| Dec\t| Dependencies\n");
     for (int i = 0; i < num_tasks; i++)
     {
-        for(int j = 0; j < 120; j++)
+        for(int j = 0; j < 130; j++)
         {
             printf("-");
         }
-        printf("%s\t", taskList[i].name);
+        printf("\n");
+        if(strlen(taskList[i].name) > 8)
+        {
+            printf("%s\t", taskList[i].name);
+        }
+        if(strlen(taskList[i].name) < 8)
+        {
+            printf("%s\t\t", taskList[i].name);
+        }
+
         for(int j = 1; j <= 12; j++)
         {
             if(j <= taskList[i].end_month && j >= taskList[i].start_month)
@@ -202,10 +211,11 @@ void print_gantt(struct Task taskList[], int num_tasks)
         }
         printf("\n");
     }
-    for(int j = 0; j < 120; j++)
+    for(int j = 0; j < 130; j++)
     {
         printf("-");
     }
+    printf("\n");
 }
 
 /*void printDependentTasks(structs task taskList[], int taskId, int visitedTable[])
