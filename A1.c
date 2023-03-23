@@ -5,7 +5,7 @@
 #define MAX_TASKS 10
 
 struct Task {
-    char name[10];
+    char name[20];
     int start_month;
     int end_month;
     int num_dependencies;
@@ -13,6 +13,7 @@ struct Task {
 };
 
 void generate_gantt();
+void example_gantt();
 void print_gantt(struct Task taskList[], int num_tasks);
 
 enum month {january,february,march,april,may,june,july,august,september,october,november,december};
@@ -42,7 +43,7 @@ int main()
     {
         case 0:
             //If yes the function for creating the test example is used.
-            printf("Y\n");
+            example_gantt();
             //The program then exits the switch function.
             break;
         default:
@@ -83,6 +84,7 @@ return 0;
 
 }
 
+// Function to generate a user-defined gantt
 void generate_gantt()
 {
     int num_tasks;
@@ -134,6 +136,37 @@ void generate_gantt()
     print_gantt(taskList, num_tasks);
 }
 
+// Function to generate an example gantt
+void example_gantt()
+{
+
+    struct Task taskList[MAX_TASKS] = {
+    {"Saving_money", 1, 4, 0},
+    {"Research_spots", 1, 2, 0},
+    {"Check_hotels", 3, 3, 0},
+    {"Check_flights", 3, 3, 0},
+    {"Book_hotel", 4, 4, 2},
+    {"Book_flight", 4, 4, 2},
+    {"Book_trip", 4, 4, 2},
+    {"Plan_activities", 6, 8, 0},
+    {"Pack", 8, 8, 1},
+    {"Enjoy_trip", 8, 8, 2},
+    };
+
+    taskList[4].dependencies[0] = 0;
+    taskList[4].dependencies[1] = 2;
+    taskList[5].dependencies[0] = 0;
+    taskList[5].dependencies[1] = 3;
+    taskList[6].dependencies[0] = 4;
+    taskList[6].dependencies[1] = 5;
+    taskList[8].dependencies[0] = 6;
+    taskList[9].dependencies[0] = 6;
+    taskList[9].dependencies[1] = 7;
+
+    print_gantt(taskList, MAX_TASKS);
+}
+
+// Function to print the generated gantt
 void print_gantt(struct Task taskList[], int num_tasks)
 {
     // Print Gantt chart
