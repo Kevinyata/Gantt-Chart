@@ -2,6 +2,20 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define MAX_TASKS 10
+
+void generate_gantt();
+
+enum month {january,february,march,april,may,june,july,august,september,october,november,december};
+struct Task {
+    char name[10];
+    int start_month;
+    int end_month;
+    int num_dependencies;
+    int dependencies[];
+};
+
+
 int main()
 {
     char ganttChoice[4];
@@ -32,7 +46,7 @@ int main()
             break;
         default:
             //If no the function for creating the user's own Gantt is used.
-            printf("N\n");
+            generate_gantt;
             //The program then exits the switch function.
             break;
     }
@@ -64,6 +78,88 @@ int main()
             break;
     }
 
+
 return 0;
 
 }
+
+void generate_gantt()
+{
+    int num_tasks, total_months = 0;
+    struct Task taskList[MAX_TASKS];
+
+    printf("Enter number of processes(1-10): \n");
+    scanf("%d", &num_tasks);
+
+    // Read in process names, start times, and end times
+    for (int i = 0; i < num_tasks; i++)
+    {
+        printf("Enter name of task %d:\n", i + 1);
+        scanf("%s", taskList[i].name);
+        printf("Enter start month of task %d:\n", i + 1);
+        scanf("%d", &taskList[i].start_month);
+        printf("Enter end month of task %d:\n", i + 1);
+        scanf("%d", &taskList[i].end_month);
+        printf("How many dependencies does task %d have?\n", i + 1);
+        scanf("%d", &taskList[i].num_dependencies);
+        for(int j = 0; j < taskList[i].num_dependencies; j++)
+        {
+            printf("Enter dependency %d of task %d:\n", j + 1, i + 1);
+            scanf("%d", &taskList[i].dependencies[j]);
+        }
+    }
+
+    // Print Gantt chart
+    printf("\n");
+    for (int i = 0; i < 120; i++) {
+        printf("_");
+    }
+    printf("\n \t");
+    printf("| Jan\t| Feb\t| Mar\t| Apr\t| May\t| Jun\t| Jul\t| Aug\t| Sep\t| Oct\t| Nov\t| Dec\t| Dependencies\n");
+    for (int i = 0; i < num_tasks; i++)
+    {
+        printf("%s\t", taskList[i].name);
+        int j = 1;
+        for (; j < taskList[i].start_month; j++)
+        {
+            printf("|\t");
+        }
+        for (; j <= taskList[i].end_month; j++)
+        {
+            printf("| XXX\t");
+        }
+        for (; j <= 12; j++)
+        {
+            printf("|\t");
+        }
+        printf("|");
+        for (int k = 0; k < taskList[i].num_dependencies; k++)
+        {
+            printf("%d ", taskList[i].dependencies[j]);
+        }
+        printf("\n");
+    }
+}
+
+/*void printDependentTasks(structs task taskList[], int taskId, int visitedTable[])
+{
+    printf("%d - > "taskId+1);
+    visitedTasks[taskId] = 1;
+
+    for (int i = 0; i < taskList[taskId].num_dependent_tasks; i++)
+    {
+        int dependentTaskId = taskList[taskId].dependent_tasks[i];
+
+        if(visitedTasks[dependentTaskId] == 0)
+        {
+            printDependentTasks(taskList, dependentTaskId, visitedTasks);
+        }
+
+        else
+        {
+            printf("( !!!!!!!!! warning potential circular dependency !!!!!!!!!!!!!)\n")7
+            checkIfCircular(taskList, dependentTaskId, resetVisitedTasks, dependentTaskId);
+        }
+    }
+}
+*/
