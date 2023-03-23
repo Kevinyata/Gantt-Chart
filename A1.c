@@ -46,7 +46,7 @@ int main()
             break;
         default:
             //If no the function for creating the user's own Gantt is used.
-            generate_gantt;
+            generate_gantt();
             //The program then exits the switch function.
             break;
     }
@@ -85,21 +85,43 @@ return 0;
 
 void generate_gantt()
 {
-    int num_tasks, total_months = 0;
+    int num_tasks;
     struct Task taskList[MAX_TASKS];
 
-    printf("Enter number of processes(1-10): \n");
+    // Function requests the number of tasks to be used in the gantt table from the user
+    printf("Enter number of tasks(1-10): \n");
     scanf("%d", &num_tasks);
 
-    // Read in process names, start times, and end times
+    // Program ensures the number of tasks is possible
+    while(num_tasks > MAX_TASKS || num_tasks < 1)
+    {
+        printf("The amount of tasks you entered is invalid. Please enter a number between 1 and 10\n");
+        scanf("%d", num_tasks);
+    }
+
+    // Read in task names, start months, end months and dependencies to a struct
     for (int i = 0; i < num_tasks; i++)
     {
         printf("Enter name of task %d:\n", i + 1);
         scanf("%s", taskList[i].name);
         printf("Enter start month of task %d:\n", i + 1);
         scanf("%d", &taskList[i].start_month);
+
+        // Program ensures start month is possible
+        while(taskList[i].start_month < 1 || taskList[i].start_month > 12)
+        {
+            printf("The start month for task %d you entered is invalid. Please enter a number between 1 and 12", i + 1);
+        }
+
         printf("Enter end month of task %d:\n", i + 1);
         scanf("%d", &taskList[i].end_month);
+
+        // Program ensures end month is possible
+        while(taskList[i].end_month < taskList[i].start_month || taskList[i].end_month > 12)
+        {
+            printf("The end month for task %d you entered is invalid. Please enter a number between %d and 12", i + 1, taskList[i].start_month);
+        }
+
         printf("How many dependencies does task %d have?\n", i + 1);
         scanf("%d", &taskList[i].num_dependencies);
         for(int j = 0; j < taskList[i].num_dependencies; j++)
@@ -114,52 +136,27 @@ void generate_gantt()
     for (int i = 0; i < 120; i++) {
         printf("_");
     }
-    printf("\n \t");
-    printf("| Jan\t| Feb\t| Mar\t| Apr\t| May\t| Jun\t| Jul\t| Aug\t| Sep\t| Oct\t| Nov\t| Dec\t| Dependencies\n");
+    printf("\n");
+    printf("\t\t| Jan\t| Feb\t| Mar\t| Apr\t| May\t| Jun\t| Jul\t| Aug\t| Sep\t| Oct\t| Nov\t| Dec\t| Dependencies\n");
     for (int i = 0; i < num_tasks; i++)
     {
-        printf("%s\t", taskList[i].name);
-        int j = 1;
-        for (; j < taskList[i].start_month; j++)
+        printf("%s\t\t", taskList[i].name);
+        for(int j = 1; j <= 12; j++)
         {
-            printf("|\t");
-        }
-        for (; j <= taskList[i].end_month; j++)
-        {
-            printf("| XXX\t");
-        }
-        for (; j <= 12; j++)
-        {
-            printf("|\t");
+            if(j <= taskList[i].end_month && j >= taskList[i].start_month)
+            {
+                printf("| XXX\t");
+            }
+            else
+            {
+                printf("|\t");
+            }
         }
         printf("|");
         for (int k = 0; k < taskList[i].num_dependencies; k++)
         {
-            printf("%d ", taskList[i].dependencies[j]);
+            printf("%d ", taskList[i].dependencies[k]);
         }
         printf("\n");
     }
 }
-
-/*void printDependentTasks(structs task taskList[], int taskId, int visitedTable[])
-{
-    printf("%d - > "taskId+1);
-    visitedTasks[taskId] = 1;
-
-    for (int i = 0; i < taskList[taskId].num_dependent_tasks; i++)
-    {
-        int dependentTaskId = taskList[taskId].dependent_tasks[i];
-
-        if(visitedTasks[dependentTaskId] == 0)
-        {
-            printDependentTasks(taskList, dependentTaskId, visitedTasks);
-        }
-
-        else
-        {
-            printf("( !!!!!!!!! warning potential circular dependency !!!!!!!!!!!!!)\n")7
-            checkIfCircular(taskList, dependentTaskId, resetVisitedTasks, dependentTaskId);
-        }
-    }
-}
-*/
