@@ -223,6 +223,7 @@ void print_gantt(struct Task taskList[], int num_tasks)
             printf("You have selected test\n");
             printf("Please enter the task name to test:\n");
             scanf("%s", testtask);
+            int num_tasks2 = num_tasks;
             for(int comp = 0; comp < num_tasks; comp++)
             {
                 if(strcasecmp(testtask, taskList[comp].name) == 0)
@@ -230,7 +231,9 @@ void print_gantt(struct Task taskList[], int num_tasks)
                     num_tasks = comp;
                 }
             }
+            system("cls");
             printDependentTasks(taskList, num_tasks, visitedTasks);
+            print_gantt(taskList, num_tasks2);
             //The program then exits the switch function.
             break;
     }
@@ -270,6 +273,7 @@ void edit_gantt(struct Task taskList[], int num_tasks)
             }
         }
     }
+    system("cls");
     print_gantt(taskList, num_tasks);
 }
 //function to check for circular dependencies
@@ -319,6 +323,7 @@ void checkIfCircular(struct Task taskList[],int TaskId, int dependentTaskId)
     {
         printf("Circular Dependency Not Found.\n");
     }
+
 }
 
 //function for ascii art
@@ -345,3 +350,4 @@ printf("         @@&&&&&&&&&@@  @@@&&&&&&@@@                           \n");
 printf("         @@@&&&&&&&@@@   @@@@@@@@@                             \n");
 printf("           @@@@@@@@                                            \n");
 }
+
