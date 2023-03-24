@@ -17,6 +17,7 @@ void example_gantt();
 void print_gantt(struct Task taskList[], int num_tasks);
 void edit_gantt(struct Task taskList[], int num_tasks);
 void printDependentTasks(struct Task taskList[], int taskId, int visitedTasks[]);
+void checkIfCircular(struct Task taskList[], int dependentTaskId, int resetVisitedTasks);
 void among_us();
 
 enum month {january,february,march,april,may,june,july,august,september,october,november,december};
@@ -206,7 +207,7 @@ void print_gantt(struct Task taskList[], int num_tasks)
     {
         printf("You have selected quit\n");
         printf("Thank you for using the Gantt generator\n");
-        among_us();
+        among_us(); // print ascii art
         return 0;
     }
     switch (strcasecmp(useOfProgram, "edit"))
@@ -234,28 +235,28 @@ void print_gantt(struct Task taskList[], int num_tasks)
             break;
     }
 }
-
+//Function to edit the gantt
 void edit_gantt(struct Task taskList[], int num_tasks)
 {
     char taskedit[20];
     printf("Please enter the task name you want to change exactly.\n");
     scanf("%s", taskedit);
-    for(int compare = 0; compare < num_tasks; compare++)
+    for(int compare = 0; compare < num_tasks; compare++) //compare the amount of tasks
     {
-        if(strcasecmp(taskedit, taskList[compare].name) == 0)
+        if(strcasecmp(taskedit, taskList[compare].name) == 0) //if task entered is same as a task listed
         {
             printf("Please enter the new task name or write its old one:\n");
             scanf("%s", taskList[compare].name);
             printf("Please enter the start month (1-12):\n");
             scanf("%d", &taskList[compare].start_month);
-            while(taskList[compare].start_month < 1 || taskList[compare].start_month > 12)
+            while(taskList[compare].start_month < 1 || taskList[compare].start_month > 12) //To stop from entering invalid start month
             {
                 printf("The start month you entered is invalid. Please enter a number between 1 and 12:\n");
                 scanf("%d", &taskList[compare].start_month);
             }
             printf("Please enter the end month (%d-12):\n", taskList[compare].start_month);
             scanf("%d", &taskList[compare].end_month);
-            while(taskList[compare].end_month < taskList[compare].start_month || taskList[compare].end_month > 12)
+            while(taskList[compare].end_month < taskList[compare].start_month || taskList[compare].end_month > 12) //To stop from entering an invalid end month
             {
                 printf("The end month you entered is invalid. Please enter a number between %d and 12:\n", taskList[compare].start_month);
                 scanf("%d", &taskList[compare].end_month);
@@ -271,30 +272,56 @@ void edit_gantt(struct Task taskList[], int num_tasks)
     }
     print_gantt(taskList, num_tasks);
 }
-
+//function to check for circular dependencies
 void printDependentTasks(struct Task taskList[], int taskId, int visitedTasks[])
 {
-    printf("%d - > ", taskId);
-    visitedTasks[taskId] = 0;
+    printf("%d - > ", taskId); //print current dependency
+    visitedTasks[taskId] = 0; //mark dependency as visited
 
-    for (int x = 0; x < taskList[taskId].num_dependencies; x++)
+    for (int x = 0; x < taskList[taskId].num_dependencies; x++) //to go through every dependency for the current task
     {
-        int dependentTaskId = taskList[taskId].dependencies[x];
+        int dependentTaskId = taskList[taskId].dependencies[x]; //to go to the next task
 
-        if(visitedTasks[dependentTaskId] != 0)
+        if(visitedTasks[dependentTaskId] != 0) //to check if the task has already been checked
         {
-            printDependentTasks(taskList, dependentTaskId, visitedTasks);
+            printDependentTasks(taskList, dependentTaskId, visitedTasks); //recursvie call
         }
 
         else
         {
             printf("( !!!!!!!!! warning potential circular dependency !!!!!!!!!!!!!)\n");
-         //   checkIfCircular(taskList, dependentTaskId, resetVisitedTasks, dependentTaskId);
+            taskId = dependentTaskId; // for use in circular dependency function
+            checkIfCircular(taskList, taskId, dependentTaskId); //recursive call to check for circular dependency
         }
     }
 }
+//function to check for circular dependencies
+void checkIfCircular(struct Task taskList[],int TaskId, int dependentTaskId)
+{
+    printf("%d - > ", dependentTaskId); // print current dependency
 
+    for(int r = 0; r < taskList[dependentTaskId].num_dependencies; r++) //to go through every dependency for the current task
+    {
+         dependentTaskId = taskList[dependentTaskId].dependencies[r]; //to go to next task
 
+         if(dependentTaskId != TaskId) //if task is not the same as the first task call function again
+         {
+             checkIfCircular(taskList, TaskId, dependentTaskId); //recursive call
+         }
+
+         else //if task is the same as the first task it is a circular dependency
+         {
+             printf("Circuar Dependency Found!!!\n");
+             break;
+         }
+    }
+    if(taskList[dependentTaskId].num_dependencies == 0) //if no circular dependencies are found
+    {
+        printf("Circular Dependency Not Found.\n");
+    }
+}
+
+//function for ascii art
 void among_us()
 {
 printf("\n          ,@@@@@@@@@@@@@@@@@@                                \n");
