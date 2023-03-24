@@ -9,19 +9,21 @@ struct Task {
     int start_month;
     int end_month;
     int num_dependencies;
-    int dependencies[];
+    int dependencies[MAX_TASKS];
 };
 
 void generate_gantt();
 void example_gantt();
 void print_gantt(struct Task taskList[], int num_tasks);
+void edit_gantt(struct Task taskList[], int num_tasks);
+void printDependentTasks(struct Task taskList[], int taskId, int visitedTasks[]);
+void checkIfCircular(struct Task taskList[], int dependentTaskId, int resetVisitedTasks);
+void among_us();
 
 enum month {january,february,march,april,may,june,july,august,september,october,november,december};
-
 int main()
 {
     char ganttChoice[4];
-    char useOfProgram[5];
 
     //Part 1: Creating the inital Gantt
     printf("Welcome to the Gantt generator!\n");
@@ -52,36 +54,7 @@ int main()
             //The program then exits the switch function.
             break;
     }
-
-    //Part 2:
-    printf("If you wish to edit the Gantt please type ''edit'' / If you wish to run a test, type ''test'' or to exit, type ''quit'' and then press enter to execute your option\n");
-    while((strcasecmp(useOfProgram, "edit") != 0) && (strcasecmp(useOfProgram, "test") != 0) && (strcasecmp(useOfProgram, "quit") != 0))
-    {
-        printf("What you have entered is not a selectable choice. Please choose edit, test, or quit\n");
-        scanf("%s", useOfProgram);
-    }
-    if(strcasecmp(useOfProgram, "quit") == 0)
-    {
-        printf("You have selected quit\n");
-        printf("Thank you for using the Gantt generator\n");
-        return 0;
-    }
-    switch (strcasecmp(useOfProgram, "edit"))
-    {
-        case 0:
-            //If "exit" the function for editing the gantt is used.
-            printf("You have selected edit\n");
-            //The program then exits the switch function.
-            break;
-        default:
-            //If test the function for testing the Gantt is used.
-            printf("You have selected test\n");
-            //The program then exits the switch function.
-            break;
-    }
-
-return 0;
-
+    return 0;
 }
 
 // Function to generate a user-defined gantt
@@ -104,6 +77,7 @@ void generate_gantt()
     // Read in task names, start months, end months and dependencies to a struct
     for (int i = 0; i < num_tasks; i++)
     {
+        getchar();
         printf("Enter name of task %d:\n", i + 1);
         scanf("%s", taskList[i].name);
         printf("Enter start month of task %d:\n", i + 1);
@@ -112,7 +86,8 @@ void generate_gantt()
         // Program ensures start month is possible
         while(taskList[i].start_month < 1 || taskList[i].start_month > 12)
         {
-            printf("The start month for task %d you entered is invalid. Please enter a number between 1 and 12", i + 1);
+            printf("The start month for task %d you entered is invalid. Please enter a number between 1 and 12\n", i + 1);
+            scanf("%d", &taskList[i].start_month);
         }
 
         printf("Enter end month of task %d:\n", i + 1);
@@ -121,7 +96,8 @@ void generate_gantt()
         // Program ensures end month is possible
         while(taskList[i].end_month < taskList[i].start_month || taskList[i].end_month > 12)
         {
-            printf("The end month for task %d you entered is invalid. Please enter a number between %d and 12", i + 1, taskList[i].start_month);
+            printf("The end month for task %d you entered is invalid. Please enter a number between %d and 12\n", i + 1, taskList[i].start_month);
+            scanf("%d", &taskList[i].end_month);
         }
 
         printf("How many dependencies does task %d have?\n", i + 1);
@@ -132,7 +108,6 @@ void generate_gantt()
             scanf("%d", &taskList[i].dependencies[j]);
         }
     }
-
     print_gantt(taskList, num_tasks);
 }
 
@@ -171,19 +146,28 @@ void print_gantt(struct Task taskList[], int num_tasks)
 {
     // Print Gantt chart
     printf("\n");
-    for (int i = 0; i < 120; i++)
+    for (int i = 0; i < 130; i++)
     {
         printf("_");
     }
     printf("\n");
-    printf("\t| Jan\t| Feb\t| Mar\t| Apr\t| May\t| Jun\t| Jul\t| Aug\t| Sep\t| Oct\t| Nov\t| Dec\t| Dependencies\n");
+    printf("\t\t| Jan\t| Feb\t| Mar\t| Apr\t| May\t| Jun\t| Jul\t| Aug\t| Sep\t| Oct\t| Nov\t| Dec\t| Dependencies\n");
     for (int i = 0; i < num_tasks; i++)
     {
-        for(int j = 0; j < 120; j++)
+        for(int j = 0; j < 130; j++)
         {
             printf("-");
         }
-        printf("%s\t", taskList[i].name);
+        printf("\n");
+        if(strlen(taskList[i].name) >= 8)
+        {
+            printf("%s\t", taskList[i].name);
+        }
+        if(strlen(taskList[i].name) < 8)
+        {
+            printf("%s\t\t", taskList[i].name);
+        }
+
         for(int j = 1; j <= 12; j++)
         {
             if(j <= taskList[i].end_month && j >= taskList[i].start_month)
@@ -202,31 +186,167 @@ void print_gantt(struct Task taskList[], int num_tasks)
         }
         printf("\n");
     }
-    for(int j = 0; j < 120; j++)
+    for(int j = 0; j < 130; j++)
     {
         printf("-");
     }
-}
+    printf("\n");
 
-/*void printDependentTasks(structs task taskList[], int taskId, int visitedTable[])
-{
-    printf("%d - > "taskId+1);
-    visitedTasks[taskId] = 1;
-
-    for (int i = 0; i < taskList[taskId].num_dependent_tasks; i++)
+    //Part 2:
+    char useOfProgram[5];
+    int visitedTasks[10];
+    char testtask[20];
+    printf("If you wish to edit the Gantt please type ''edit'' / If you wish to run a test, type ''test'' or to exit, type ''quit'' and then press enter to execute your option\n");
+    scanf("%s", useOfProgram);
+    while((strcasecmp(useOfProgram, "edit") != 0) && (strcasecmp(useOfProgram, "test") != 0) && (strcasecmp(useOfProgram, "quit") != 0))
     {
-        int dependentTaskId = taskList[taskId].dependent_tasks[i];
-
-        if(visitedTasks[dependentTaskId] == 0)
+        printf("What you have entered is not a selectable choice. Please choose edit, test, or quit\n");
+        scanf("%s", useOfProgram);
+    }
+    if(strcasecmp(useOfProgram, "quit") == 0)
+    {
+        printf("You have selected quit\n");
+        printf("Thank you for using the Gantt generator\n");
+        among_us(); // print ascii art
+        return 0;
+    }
+    switch (strcasecmp(useOfProgram, "edit"))
+    {
+        case 0:
+            //If "exit" the function for editing the gantt is used.
+            printf("You have selected edit\n");
+            edit_gantt(taskList, num_tasks);
+            //The program then exits the switch function.
+            break;
+        default:
+            //If test the function for testing the Gantt is used.
+            printf("You have selected test\n");
+            printf("Please enter the task name to test:\n");
+            scanf("%s", testtask);
+            int num_tasks2 = num_tasks;
+            for(int comp = 0; comp < num_tasks; comp++)
+            {
+                if(strcasecmp(testtask, taskList[comp].name) == 0)
+                {
+                    num_tasks = comp;
+                }
+            }
+            system("cls");
+            printDependentTasks(taskList, num_tasks, visitedTasks);
+            print_gantt(taskList, num_tasks2);
+            //The program then exits the switch function.
+            break;
+    }
+}
+//Function to edit the gantt
+void edit_gantt(struct Task taskList[], int num_tasks)
+{
+    char taskedit[20];
+    printf("Please enter the task name you want to change exactly.\n");
+    scanf("%s", taskedit);
+    for(int compare = 0; compare < num_tasks; compare++) //compare the amount of tasks
+    {
+        if(strcasecmp(taskedit, taskList[compare].name) == 0) //if task entered is same as a task listed
         {
-            printDependentTasks(taskList, dependentTaskId, visitedTasks);
+            printf("Please enter the new task name or write its old one:\n");
+            scanf("%s", taskList[compare].name);
+            printf("Please enter the start month (1-12):\n");
+            scanf("%d", &taskList[compare].start_month);
+            while(taskList[compare].start_month < 1 || taskList[compare].start_month > 12) //To stop from entering invalid start month
+            {
+                printf("The start month you entered is invalid. Please enter a number between 1 and 12:\n");
+                scanf("%d", &taskList[compare].start_month);
+            }
+            printf("Please enter the end month (%d-12):\n", taskList[compare].start_month);
+            scanf("%d", &taskList[compare].end_month);
+            while(taskList[compare].end_month < taskList[compare].start_month || taskList[compare].end_month > 12) //To stop from entering an invalid end month
+            {
+                printf("The end month you entered is invalid. Please enter a number between %d and 12:\n", taskList[compare].start_month);
+                scanf("%d", &taskList[compare].end_month);
+            }
+            printf("Enter how many dependencies this task has:\n");
+            scanf("%d", &taskList[compare].num_dependencies);
+            for(int depend = 0; depend < taskList[compare].num_dependencies; depend++)
+            {
+                printf("Enter dependency %d of this task:\n", depend + 1);
+                scanf("%d", &taskList[compare].dependencies[depend]);
+            }
+        }
+    }
+    system("cls");
+    print_gantt(taskList, num_tasks);
+}
+//function to check for circular dependencies
+void printDependentTasks(struct Task taskList[], int taskId, int visitedTasks[])
+{
+    printf("%d - > ", taskId); //print current dependency
+    visitedTasks[taskId] = 0; //mark dependency as visited
+
+    for (int x = 0; x < taskList[taskId].num_dependencies; x++) //to go through every dependency for the current task
+    {
+        int dependentTaskId = taskList[taskId].dependencies[x]; //to go to the next task
+
+        if(visitedTasks[dependentTaskId] != 0) //to check if the task has already been checked
+        {
+            printDependentTasks(taskList, dependentTaskId, visitedTasks); //recursvie call
         }
 
         else
         {
-            printf("( !!!!!!!!! warning potential circular dependency !!!!!!!!!!!!!)\n")7
-            checkIfCircular(taskList, dependentTaskId, resetVisitedTasks, dependentTaskId);
+            printf("( !!!!!!!!! warning potential circular dependency !!!!!!!!!!!!!)\n");
+            taskId = dependentTaskId; // for use in circular dependency function
+            checkIfCircular(taskList, taskId, dependentTaskId); //recursive call to check for circular dependency
         }
     }
 }
-*/
+//function to check for circular dependencies
+void checkIfCircular(struct Task taskList[],int TaskId, int dependentTaskId)
+{
+    printf("%d - > ", dependentTaskId); // print current dependency
+
+    for(int r = 0; r < taskList[dependentTaskId].num_dependencies; r++) //to go through every dependency for the current task
+    {
+         dependentTaskId = taskList[dependentTaskId].dependencies[r]; //to go to next task
+
+         if(dependentTaskId != TaskId) //if task is not the same as the first task call function again
+         {
+             checkIfCircular(taskList, TaskId, dependentTaskId); //recursive call
+         }
+
+         else //if task is the same as the first task it is a circular dependency
+         {
+             printf("Circuar Dependency Found!!!\n");
+             break;
+         }
+    }
+    if(taskList[dependentTaskId].num_dependencies == 0) //if no circular dependencies are found
+    {
+        printf("Circular Dependency Not Found.\n");
+    }
+
+}
+
+//function for ascii art
+void among_us()
+{
+printf("\n          ,@@@@@@@@@@@@@@@@@@                                \n");
+printf("           @@@%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@@@@               \n");
+printf("          @@@%%%%%%%%%%%%%%%%&&&&&&&&&&&&&&&,                  \n");
+printf("         @@@&%%%%%%%%%%%&&&&*,,,,,,     ,#&&&                  \n");
+printf("      ,%@@@&&%%%%%%%%%%%&&&(/,,,,,,,,,,    ,&&&                \n");
+printf("  @@@@@@@@@&&%%%%%%%%&&&(((/,,,,,,,,,,,,,%%&&                  \n");
+printf(" %%@@%%%%%%%%@@@&&%%%%%%%%&&&#((((((((((((((((&&&              \n");
+printf(" @@&&&&&@@@&&%%%%%%%%%%&&&&&&#(((((#%%&&&&&&.                  \n");
+printf(" @@&&&&&@@@&&%%%%%%%%%%%%%%%%%%%%&&&&&&&&&&%%%%&@@             \n");
+printf("*@@&&&&&@@@&&%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%@@  \n");
+printf("%%@@&&&&&@@@&&&%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%&@@   \n");
+printf("/@@&&&&&@@@&&&&%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%&&@@      \n");
+printf(" @@&&&&&@@@&&&&&&%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%&&&@@@          \n");
+printf(" @@@&&&&@@@&&&&&&&&&&&&&&&&&&&&&&&&@@&                         \n");
+printf("  @@@&&&@@@&&&&&&&&&&&&&&&&&&&&&&&&@@                          \n");
+printf("    (@@@@@@&&&&&&&&&@@@@@@@@&&&&&&@@@                          \n");
+printf("         @@&&&&&&&&&@@  @@&&&&&&&&@@                           \n");
+printf("         @@&&&&&&&&&@@  @@@&&&&&&@@@                           \n");
+printf("         @@@&&&&&&&@@@   @@@@@@@@@                             \n");
+printf("           @@@@@@@@                                            \n");
+}
